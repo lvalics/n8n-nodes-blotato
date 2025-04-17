@@ -143,8 +143,8 @@ export class BlotatoApi implements ICredentialType {
 			url: '/v2/media',
 			method: 'POST',
 			body: {
-				// Use a data URI for a 1x1 transparent GIF
-				url: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+				// Use a publicly accessible image URL for testing
+				url: 'https://upload.wikimedia.org/wikipedia/commons/c/ca/1x1.png',
 			},
 		},
 	};
