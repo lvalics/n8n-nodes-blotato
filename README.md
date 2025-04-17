@@ -1,18 +1,49 @@
-# n8n-nodes-starter
+# n8n-nodes-blotato
 
-This n8n community node enables seamless integration of **[PiAPI](https://piapi.ai/workspace?via=valics) in your [n8n](https://n8n.io) workflows**.
+This n8n community node enables seamless integration of **[Blotato](https://blotato.com) in your [n8n](https://n8n.io) workflows**.
 
-## Features
+## 🍄 Welcome to Blotato!
 
-- Describe here
+### What is Blotato?
+Your all-in-one AI content workspace to create, remix, and distribute viral posts and faceless videos.
+
+I built Blotato to help me teach 1 million people AI and distribute 150+ pieces of content per week.
+
+### The Problem Blotato Solves
+Producing high-quality content, consistently, while growing on multiple platforms.
+
+Without paying for multiple tools that don't talk to each other.
+
+### Key Features and Benefits
+- Easily remix content across multiple platforms. For example, remix a Youtube/TikTok video into an Instagram post or Twitter thread; or, remix multiple articles into a YouTube script.
+- Generate high-quality faceless AI images, videos, and voices.
+- Schedule and publish posts in advance to all platforms.
+- Track trending viral posts and never run out of ideas.
+
+### Results?
+I grew my personal brand from 0 to 500,000+ followers in 6 months WITHOUT: a team, budget, VA, paid ads, masterminds, courses, coaches, consultants, agencies, prior existing audience, and prior social media experience.
+
+### Who is Blotato For?
+- Solopreneurs
+- Content creators
+- Small business owners
+- Social media marketers
+- Digital marketing agencies
 
 ## Installation
 
 Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
-## More information
+## Nodes
 
-Description of the node will go here.
+### Media Upload
+Upload media files to Blotato for use in social media posts.
+
+### Post Publish
+Publish content to multiple social media platforms with one workflow.
+
+### Social Accounts
+Get your connected social media account IDs from your Blotato credentials.
 
 ## Compatibility
 
@@ -20,4 +51,4 @@ Description of the node will go here.
 
 ## License
 
-[MIT](https://github.com/n8n-io/n8n-nodes-piapi/blob/master/LICENSE.md)
+[MIT](https://github.com/lvalics/n8n-nodes-blotato/blob/master/LICENSE.md)

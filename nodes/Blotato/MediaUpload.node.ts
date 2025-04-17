@@ -87,15 +87,6 @@ export class MediaUpload implements INodeType {
 				default: 'mediaUrl',
 				description: 'Field name to store the uploaded media URL',
 			},
-
-			// Include credentials in output
-			{
-				displayName: 'Include Social Account IDs',
-				name: 'includeSocialAccounts',
-				type: 'boolean',
-				default: true,
-				description: 'Whether to include social media account IDs in the output for use in later nodes',
-			},
 		],
 	};
 
@@ -103,15 +94,11 @@ export class MediaUpload implements INodeType {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
 
-		// Get credentials for possible use of social media account IDs
-		const credentials = await this.getCredentials('blotatoApi');
-
 		// Process each input item
 		for (let i = 0; i < items.length; i++) {
 			try {
 				const uploadMethod = this.getNodeParameter('uploadMethod', i) as string;
 				const outputField = this.getNodeParameter('outputField', i) as string;
-				const includeSocialAccounts = this.getNodeParameter('includeSocialAccounts', i) as boolean;
 
 				let responseData;
 
@@ -178,23 +165,6 @@ export class MediaUpload implements INodeType {
 
 				// Include the full response data
 				newItem.json.mediaUploadResponse = responseData;
-
-				// Include social media account IDs from credentials if requested
-				if (includeSocialAccounts) {
-					newItem.json.socialAccounts = {
-						instagram_id: credentials.instagram_id || '',
-						youtube_id: credentials.youtube_id || '',
-						tiktok_id: credentials.tiktok_id || '',
-						facebook_id: credentials.facebook_id || '',
-						facebook_page_id: credentials.facebook_page_id || '',
-						threads_id: credentials.threads_id || '',
-						twitter_id: credentials.twitter_id || '',
-						linkedin_id: credentials.linkedin_id || '',
-						pinterest_id: credentials.pinterest_id || '',
-						pinterest_board_id: credentials.pinterest_board_id || '',
-						bluesky_id: credentials.bluesky_id || '',
-					};
-				}
 
 				returnData.push(newItem);
 			} catch (error) {
