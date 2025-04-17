@@ -150,14 +150,14 @@ export class Blotato implements INodeType {
 				name: 'accountId',
 				type: 'string',
 				default: '',
-				required: true,
+				required: false,
 				displayOptions: {
 					show: {
 						resource: ['post'],
 						operation: ['create'],
 					},
 				},
-				description: 'ID of the connected account for publishing the post',
+				description: 'ID of the connected account for publishing the post (if not provided, will use the ID from credentials)',
 			},
 			
 			{
@@ -233,7 +233,7 @@ export class Blotato implements INodeType {
 				name: 'pageId',
 				type: 'string',
 				default: '',
-				required: true,
+				required: false,
 				displayOptions: {
 					show: {
 						resource: ['post'],
@@ -241,7 +241,7 @@ export class Blotato implements INodeType {
 						platform: ['facebook'],
 					},
 				},
-				description: 'Facebook Page ID',
+				description: 'Facebook Page ID (if not provided, will use the ID from credentials)',
 			},
 			
 			// LinkedIn parameters
@@ -266,7 +266,7 @@ export class Blotato implements INodeType {
 				name: 'boardId',
 				type: 'string',
 				default: '',
-				required: true,
+				required: false,
 				displayOptions: {
 					show: {
 						resource: ['post'],
@@ -274,7 +274,7 @@ export class Blotato implements INodeType {
 						platform: ['pinterest'],
 					},
 				},
-				description: 'Pinterest board ID',
+				description: 'Pinterest board ID (if not provided, will use the ID from credentials)',
 			},
 			
 			{
@@ -509,9 +509,41 @@ export class Blotato implements INodeType {
 					// Create post operation
 					if (operation === 'create') {
 						const platform = this.getNodeParameter('platform', i) as string;
-						const accountId = this.getNodeParameter('accountId', i) as string;
 						const text = this.getNodeParameter('text', i) as string;
 						const mediaUrls = this.getNodeParameter('mediaUrls', i) as string[];
+						
+						// Get account ID from node parameters or credentials
+						let accountId = this.getNodeParameter('accountId', i, '') as string;
+						
+						// Get credentials with social media accounts
+						const credentials = await this.getCredentials('blotatoApi') as {
+							apiKey: string;
+							socialMediaAccounts?: {
+								accounts?: {
+									instagram_id?: string;
+									youtube_id?: string;
+									tiktok_id?: string;
+									facebook_id?: string;
+									facebook_page_id?: string;
+									threads_id?: string;
+									twitter_id?: string;
+									linkedin_id?: string;
+									pinterest_id?: string;
+									pinterest_board_id?: string;
+									bluesky_id?: string;
+								}
+							}
+						};
+						
+						// If account ID not provided, try to get from credentials
+						if (!accountId && credentials.socialMediaAccounts?.accounts) {
+							const accountField = `${platform}_id` as keyof typeof credentials.socialMediaAccounts.accounts;
+							const savedAccountId = credentials.socialMediaAccounts.accounts[accountField];
+							
+							if (savedAccountId) {
+								accountId = savedAccountId;
+							}
+						}
 						
 						// Initialize the post data structure
 						const postData: {
@@ -552,7 +584,14 @@ export class Blotato implements INodeType {
 						// Add platform-specific parameters
 						switch (platform) {
 							case 'facebook':
-								postData.post.target.pageId = this.getNodeParameter('pageId', i) as string;
+								let pageId = this.getNodeParameter('pageId', i, '') as string;
+								
+								// If page ID not provided, try to get from credentials
+								if (!pageId && credentials.socialMediaAccounts?.accounts?.facebook_page_id) {
+									pageId = credentials.socialMediaAccounts.accounts.facebook_page_id;
+								}
+								
+								postData.post.target.pageId = pageId;
 								break;
 							
 							case 'linkedin':
@@ -563,7 +602,14 @@ export class Blotato implements INodeType {
 								break;
 							
 							case 'pinterest':
-								postData.post.target.boardId = this.getNodeParameter('boardId', i) as string;
+								let boardId = this.getNodeParameter('boardId', i, '') as string;
+								
+								// If board ID not provided, try to get from credentials
+								if (!boardId && credentials.socialMediaAccounts?.accounts?.pinterest_board_id) {
+									boardId = credentials.socialMediaAccounts.accounts.pinterest_board_id;
+								}
+								
+								postData.post.target.boardId = boardId;
 								
 								const pinTitle = this.getNodeParameter('pinTitle', i, '') as string;
 								if (pinTitle) {
