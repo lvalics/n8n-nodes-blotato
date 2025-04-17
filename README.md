@@ -2,16 +2,15 @@
 
 This n8n community node enables seamless integration of **[Blotato](https://blotato.com) in your [n8n](https://n8n.io) workflows**.
 
-## 🍄 Welcome to Blotato!
+## Blotato node for N8N
 
 ### What is Blotato?
 Your all-in-one AI content workspace to create, remix, and distribute viral posts and faceless videos.
 
-I built Blotato to help me teach 1 million people AI and distribute 150+ pieces of content per week.
+Blotato nodes will help you to build fast automations based on Blotato Tools.
 
 ### The Problem Blotato Solves
 Producing high-quality content, consistently, while growing on multiple platforms.
-
 Without paying for multiple tools that don't talk to each other.
 
 ### Key Features and Benefits
@@ -19,9 +18,6 @@ Without paying for multiple tools that don't talk to each other.
 - Generate high-quality faceless AI images, videos, and voices.
 - Schedule and publish posts in advance to all platforms.
 - Track trending viral posts and never run out of ideas.
-
-### Results?
-I grew my personal brand from 0 to 500,000+ followers in 6 months WITHOUT: a team, budget, VA, paid ads, masterminds, courses, coaches, consultants, agencies, prior existing audience, and prior social media experience.
 
 ### Who is Blotato For?
 - Solopreneurs

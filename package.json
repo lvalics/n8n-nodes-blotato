@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-blotato",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "keywords": [
     "n8n-community-node-package"
@@ -8,8 +8,8 @@
   "license": "MIT",
   "homepage": "",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "Valics Lehel",
+    "email": "lvalics@gmail.com"
   },
   "repository": {
     "type": "git",
