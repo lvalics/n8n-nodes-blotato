@@ -182,17 +182,17 @@ export class MediaUpload implements INodeType {
 				// Include social media account IDs from credentials if requested
 				if (includeSocialAccounts) {
 					newItem.json.socialAccounts = {
-						instagram_id: credentials.instagram_id,
-						youtube_id: credentials.youtube_id,
-						tiktok_id: credentials.tiktok_id,
-						facebook_id: credentials.facebook_id,
-						facebook_page_id: credentials.facebook_page_id,
-						threads_id: credentials.threads_id,
-						twitter_id: credentials.twitter_id,
-						linkedin_id: credentials.linkedin_id,
-						pinterest_id: credentials.pinterest_id,
-						pinterest_board_id: credentials.pinterest_board_id,
-						bluesky_id: credentials.bluesky_id,
+						instagram_id: credentials.instagram_id || '',
+						youtube_id: credentials.youtube_id || '',
+						tiktok_id: credentials.tiktok_id || '',
+						facebook_id: credentials.facebook_id || '',
+						facebook_page_id: credentials.facebook_page_id || '',
+						threads_id: credentials.threads_id || '',
+						twitter_id: credentials.twitter_id || '',
+						linkedin_id: credentials.linkedin_id || '',
+						pinterest_id: credentials.pinterest_id || '',
+						pinterest_board_id: credentials.pinterest_board_id || '',
+						bluesky_id: credentials.bluesky_id || '',
 					};
 				}
 

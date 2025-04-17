@@ -418,7 +418,7 @@ export class PostPublish implements INodeType {
 					accountId = credentials[credentialField] as string || '';
 
 					if (!accountId) {
-						throw new Error(`No ${platform} account ID provided in node parameters or credentials`);
+						throw new Error(`No ${platform} account ID provided in node parameters or credentials. Please add it to your API credentials or provide it directly in the node.`);
 					}
 				}
 
@@ -465,7 +465,7 @@ export class PostPublish implements INodeType {
 						if (!facebookPageId) {
 							facebookPageId = credentials.facebook_page_id as string || '';
 							if (!facebookPageId) {
-								throw new Error('Facebook Page ID is required for posting to Facebook');
+								throw new Error('Facebook Page ID is required for posting to Facebook. Please add it to your API credentials or provide it directly in the node.');
 							}
 						}
 						postData.post.target.pageId = facebookPageId;
@@ -483,7 +483,7 @@ export class PostPublish implements INodeType {
 						if (!pinterestBoardId) {
 							pinterestBoardId = credentials.pinterest_board_id as string || '';
 							if (!pinterestBoardId) {
-								throw new Error('Pinterest Board ID is required for posting to Pinterest');
+								throw new Error('Pinterest Board ID is required for posting to Pinterest. Please add it to your API credentials or provide it directly in the node.');
 							}
 						}
 						postData.post.target.boardId = pinterestBoardId;
