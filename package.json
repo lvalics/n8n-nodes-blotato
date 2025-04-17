@@ -37,10 +37,10 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/ExampleCredentialsApi.credentials.js"
+      "dist/credentials/BlotatApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/ExampleNode/ExampleNode.node.js"
+      "dist/nodes/Blotato/Blotato.node.js"
     ]
   },
   "devDependencies": {

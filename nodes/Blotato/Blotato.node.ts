@@ -4,9 +4,11 @@ import {
 	INodeType,
 	INodeTypeDescription,
 	NodeConnectionType,
+	IBinaryKeyData,
 } from 'n8n-workflow';
 
-import { blotatoApiRequest } from './GenericFunctions';
+import { blotatoApiRequest, blotatoApiRequestWithFullResponse } from './GenericFunctions';
+import * as FormData from 'form-data';
 
 export class Blotato implements INodeType {
 	description: INodeTypeDescription = {
@@ -58,7 +60,7 @@ export class Blotato implements INodeType {
 				default: 'media',
 				description: 'Resource to interact with',
 			},
-			
+
 			// MEDIA OPERATIONS
 			{
 				displayName: 'Operation',
@@ -80,8 +82,31 @@ export class Blotato implements INodeType {
 				],
 				default: 'upload',
 			},
-			
+
 			// Media Upload Parameters
+			{
+				displayName: 'Upload Method',
+				name: 'uploadMethod',
+				type: 'options',
+				options: [
+					{
+						name: 'By URL',
+						value: 'url',
+					},
+					{
+						name: 'Binary Data (File)',
+						value: 'binaryData',
+					},
+				],
+				default: 'url',
+				description: 'Method to upload media',
+				displayOptions: {
+					show: {
+						resource: ['media'],
+						operation: ['upload'],
+					},
+				},
+			},
 			{
 				displayName: 'Media URL',
 				name: 'url',
@@ -92,11 +117,27 @@ export class Blotato implements INodeType {
 					show: {
 						resource: ['media'],
 						operation: ['upload'],
+						uploadMethod: ['url'],
 					},
 				},
 				description: 'URL of the media to upload',
 			},
-			
+			{
+				displayName: 'Binary Property',
+				name: 'binaryPropertyName',
+				type: 'string',
+				default: 'data',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['media'],
+						operation: ['upload'],
+						uploadMethod: ['binaryData'],
+					},
+				},
+				description: 'Name of the binary property containing the file to upload',
+			},
+
 			// POST OPERATIONS
 			{
 				displayName: 'Operation',
@@ -118,7 +159,7 @@ export class Blotato implements INodeType {
 				],
 				default: 'create',
 			},
-			
+
 			// Common Post Parameters
 			{
 				displayName: 'Platform',
@@ -144,7 +185,7 @@ export class Blotato implements INodeType {
 				default: 'twitter',
 				description: 'Platform to post to',
 			},
-			
+
 			{
 				displayName: 'Account ID',
 				name: 'accountId',
@@ -159,7 +200,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'ID of the connected account for publishing the post (if not provided, will use the ID from credentials)',
 			},
-			
+
 			{
 				displayName: 'Post Text',
 				name: 'text',
@@ -177,7 +218,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'The main textual content of the post',
 			},
-			
+
 			{
 				displayName: 'Media URLs',
 				name: 'mediaUrls',
@@ -194,7 +235,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'URLs of media to attach to the post (should be from blotato.com domain)',
 			},
-			
+
 			// Schedule Post Option
 			{
 				displayName: 'Schedule Post',
@@ -209,7 +250,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Whether to schedule the post for later',
 			},
-			
+
 			{
 				displayName: 'Scheduled Time',
 				name: 'scheduledTime',
@@ -224,9 +265,9 @@ export class Blotato implements INodeType {
 				},
 				description: 'The time to schedule the post for (ISO 8601 format)',
 			},
-			
+
 			// PLATFORM-SPECIFIC PARAMETERS
-			
+
 			// Facebook parameters
 			{
 				displayName: 'Page ID',
@@ -243,7 +284,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Facebook Page ID (if not provided, will use the ID from credentials)',
 			},
-			
+
 			// LinkedIn parameters
 			{
 				displayName: 'Page ID (Optional)',
@@ -259,7 +300,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Optional LinkedIn Page ID',
 			},
-			
+
 			// Pinterest parameters
 			{
 				displayName: 'Board ID',
@@ -276,7 +317,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Pinterest board ID (if not provided, will use the ID from credentials)',
 			},
-			
+
 			{
 				displayName: 'Pin Title (Optional)',
 				name: 'pinTitle',
@@ -291,7 +332,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Optional title for the pin',
 			},
-			
+
 			{
 				displayName: 'Alt Text (Optional)',
 				name: 'altText',
@@ -306,7 +347,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Alternative text for the pin image',
 			},
-			
+
 			{
 				displayName: 'Link URL (Optional)',
 				name: 'link',
@@ -321,7 +362,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'URL link for the pin',
 			},
-			
+
 			// TikTok parameters
 			{
 				displayName: 'Privacy Level',
@@ -343,7 +384,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Privacy level of the TikTok post',
 			},
-			
+
 			{
 				displayName: 'Additional Options',
 				name: 'additionalOptions',
@@ -396,7 +437,7 @@ export class Blotato implements INodeType {
 					},
 				],
 			},
-			
+
 			// Threads parameters
 			{
 				displayName: 'Reply Control',
@@ -417,7 +458,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Who can reply to the post',
 			},
-			
+
 			// YouTube parameters
 			{
 				displayName: 'Video Title',
@@ -434,7 +475,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Title of the YouTube video',
 			},
-			
+
 			{
 				displayName: 'Privacy Status',
 				name: 'privacyStatus',
@@ -454,7 +495,7 @@ export class Blotato implements INodeType {
 				},
 				description: 'Privacy status of the YouTube video',
 			},
-			
+
 			{
 				displayName: 'Notify Subscribers',
 				name: 'shouldNotifySubscribers',
@@ -476,34 +517,73 @@ export class Blotato implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
-		
+
 		// Process each input item
 		for (let i = 0; i < items.length; i++) {
 			try {
 				const resource = this.getNodeParameter('resource', i) as string;
 				const operation = this.getNodeParameter('operation', i) as string;
-				
+
 				// MEDIA RESOURCE OPERATIONS
 				if (resource === 'media') {
 					// Upload media operation
 					if (operation === 'upload') {
-						const url = this.getNodeParameter('url', i) as string;
-						
-						// Make API request to upload media
-						const responseData = await blotatoApiRequest.call(
-							this,
-							'POST',
-							'/media',
-							{ url },
-						);
-						
+						const uploadMethod = this.getNodeParameter('uploadMethod', i) as string;
+						let responseData;
+
+						if (uploadMethod === 'url') {
+							// Upload by URL
+							const url = this.getNodeParameter('url', i) as string;
+
+							// Make API request to upload media
+							responseData = await blotatoApiRequest.call(
+								this,
+								'POST',
+								'/media',
+								{ url },
+							);
+						} else {
+							// Upload by binary data (file)
+							const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
+
+							// Check if the binary data exists
+							if (!items[i].binary || !items[i].binary[binaryPropertyName]) {
+								throw new Error(`No binary data property "${binaryPropertyName}" found in input`);
+							}
+
+							const binaryData = items[i].binary[binaryPropertyName] as IBinaryKeyData;
+							const buffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+
+							// Create a FormData object
+							const formData = new FormData();
+							const fileName = binaryData.fileName || 'file';
+							const mimeType = binaryData.mimeType || 'application/octet-stream';
+
+							// Convert file to URL using a Data URI
+							const base64Data = buffer.toString('base64');
+							const dataUri = `data:${mimeType};base64,${base64Data}`;
+
+							// Add the file to the form data with the URL parameter
+							formData.append('url', dataUri);
+
+							// Make API request to upload media
+							responseData = await blotatoApiRequest.call(
+								this,
+								'POST',
+								'/media',
+								formData,
+								{},
+								true, // isFormData
+							);
+						}
+
 						returnData.push({
 							json: responseData,
 							pairedItem: { item: i },
 						});
 					}
 				}
-				
+
 				// POST RESOURCE OPERATIONS
 				if (resource === 'post') {
 					// Create post operation
@@ -511,10 +591,10 @@ export class Blotato implements INodeType {
 						const platform = this.getNodeParameter('platform', i) as string;
 						const text = this.getNodeParameter('text', i) as string;
 						const mediaUrls = this.getNodeParameter('mediaUrls', i) as string[];
-						
+
 						// Get account ID from node parameters or credentials
 						let accountId = this.getNodeParameter('accountId', i, '') as string;
-						
+
 						// Get credentials with social media accounts
 						const credentials = await this.getCredentials('blotatoApi') as {
 							apiKey: string;
@@ -534,17 +614,17 @@ export class Blotato implements INodeType {
 								}
 							}
 						};
-						
+
 						// If account ID not provided, try to get from credentials
 						if (!accountId && credentials.socialMediaAccounts?.accounts) {
 							const accountField = `${platform}_id` as keyof typeof credentials.socialMediaAccounts.accounts;
 							const savedAccountId = credentials.socialMediaAccounts.accounts[accountField];
-							
+
 							if (savedAccountId) {
 								accountId = savedAccountId;
 							}
 						}
-						
+
 						// Initialize the post data structure
 						const postData: {
 							post: {
@@ -573,63 +653,63 @@ export class Blotato implements INodeType {
 								},
 							},
 						};
-						
+
 						// Handle scheduled posts
 						const schedulePost = this.getNodeParameter('schedulePost', i) as boolean;
 						if (schedulePost) {
 							const scheduledTime = this.getNodeParameter('scheduledTime', i) as string;
 							postData.scheduledTime = scheduledTime;
 						}
-						
+
 						// Add platform-specific parameters
 						switch (platform) {
 							case 'facebook':
 								let pageId = this.getNodeParameter('pageId', i, '') as string;
-								
+
 								// If page ID not provided, try to get from credentials
 								if (!pageId && credentials.socialMediaAccounts?.accounts?.facebook_page_id) {
 									pageId = credentials.socialMediaAccounts.accounts.facebook_page_id;
 								}
-								
+
 								postData.post.target.pageId = pageId;
 								break;
-							
+
 							case 'linkedin':
 								const linkedinPageId = this.getNodeParameter('pageId', i, '') as string;
 								if (linkedinPageId) {
 									postData.post.target.pageId = linkedinPageId;
 								}
 								break;
-							
+
 							case 'pinterest':
 								let boardId = this.getNodeParameter('boardId', i, '') as string;
-								
+
 								// If board ID not provided, try to get from credentials
 								if (!boardId && credentials.socialMediaAccounts?.accounts?.pinterest_board_id) {
 									boardId = credentials.socialMediaAccounts.accounts.pinterest_board_id;
 								}
-								
+
 								postData.post.target.boardId = boardId;
-								
+
 								const pinTitle = this.getNodeParameter('pinTitle', i, '') as string;
 								if (pinTitle) {
 									postData.post.target.title = pinTitle;
 								}
-								
+
 								const altText = this.getNodeParameter('altText', i, '') as string;
 								if (altText) {
 									postData.post.target.altText = altText;
 								}
-								
+
 								const link = this.getNodeParameter('link', i, '') as string;
 								if (link) {
 									postData.post.target.link = link;
 								}
 								break;
-							
+
 							case 'tiktok':
 								postData.post.target.privacyLevel = this.getNodeParameter('privacyLevel', i) as string;
-								
+
 								// Get additional TikTok options
 								const additionalOptions = this.getNodeParameter('additionalOptions', i, {}) as {
 									disabledComments?: boolean;
@@ -639,25 +719,25 @@ export class Blotato implements INodeType {
 									isYourBrand?: boolean;
 									isAiGenerated?: boolean;
 								};
-								
+
 								// Add all additional options to the target
 								Object.assign(postData.post.target, additionalOptions);
 								break;
-							
+
 							case 'threads':
 								const replyControl = this.getNodeParameter('replyControl', i, '') as string;
 								if (replyControl) {
 									postData.post.target.replyControl = replyControl;
 								}
 								break;
-							
+
 							case 'youtube':
 								postData.post.target.title = this.getNodeParameter('videoTitle', i) as string;
 								postData.post.target.privacyStatus = this.getNodeParameter('privacyStatus', i) as string;
 								postData.post.target.shouldNotifySubscribers = this.getNodeParameter('shouldNotifySubscribers', i) as boolean;
 								break;
 						}
-						
+
 						// Make API request to create post
 						const responseData = await blotatoApiRequest.call(
 							this,
@@ -665,14 +745,14 @@ export class Blotato implements INodeType {
 							'/posts',
 							postData,
 						);
-						
+
 						returnData.push({
 							json: responseData,
 							pairedItem: { item: i },
 						});
 					}
 				}
-				
+
 			} catch (error) {
 				// If the option continueOnFail is set to true, we simply append the error to the returned items
 				if (this.continueOnFail()) {
@@ -687,7 +767,7 @@ export class Blotato implements INodeType {
 				throw error;
 			}
 		}
-		
+
 		return [returnData];
 	}
 }

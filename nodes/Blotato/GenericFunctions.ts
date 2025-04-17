@@ -6,6 +6,7 @@ import {
 	NodeApiError,
 } from 'n8n-workflow';
 import { OptionsWithUri } from 'request';
+import * as FormData from 'form-data';
 
 /**
  * Base URL for the Blotato API
@@ -20,28 +21,40 @@ export const apiBaseUrl = 'https://backend.blotato.com/v2';
  * @param {string} endpoint - API endpoint to call
  * @param {object} body - Request body data
  * @param {object} qs - Query string parameters
+ * @param {boolean} isFormData - Whether the body is FormData
  * @returns {Promise<any>} The API response
  */
 export async function blotatoApiRequest(
 	this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions,
 	method: string,
 	endpoint: string,
-	body: object = {},
+	body: object | FormData = {},
 	qs: object = {},
+	isFormData = false,
 ): Promise<any> {
 	const credentials = await this.getCredentials('blotatoApi');
 	
-	// Define the request options
+	// Define base request options
 	const options: OptionsWithUri = {
 		method,
 		uri: `${apiBaseUrl}${endpoint}`,
 		qs,
-		body,
-		json: true,
 		headers: {
 			'blotato-api-key': credentials.apiKey as string,
 		},
 	};
+	
+	// Handle different body types
+	if (isFormData && body instanceof FormData) {
+		// For FormData (binary uploads), extract headers and body properly
+		const formHeaders = body.getHeaders();
+		options.headers = { ...options.headers, ...formHeaders };
+		options.body = body;
+	} else {
+		// For regular JSON requests
+		options.body = body;
+		options.json = true;
+	}
 	
 	try {
 		// Make the request using the n8n helper
@@ -68,22 +81,34 @@ export async function blotatoApiRequestWithFullResponse(
 	this: IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions,
 	method: string,
 	endpoint: string,
-	body: object = {},
+	body: object | FormData = {},
 	qs: object = {},
+	isFormData = false,
 ): Promise<INodeApiResponse> {
 	const credentials = await this.getCredentials('blotatoApi');
 	
+	// Define base request options
 	const options: OptionsWithUri = {
 		method,
 		uri: `${apiBaseUrl}${endpoint}`,
 		qs,
-		body,
-		json: true,
 		headers: {
 			'blotato-api-key': credentials.apiKey as string,
 		},
 		resolveWithFullResponse: true,
 	};
+	
+	// Handle different body types
+	if (isFormData && body instanceof FormData) {
+		// For FormData (binary uploads), extract headers and body properly
+		const formHeaders = body.getHeaders();
+		options.headers = { ...options.headers, ...formHeaders };
+		options.body = body;
+	} else {
+		// For regular JSON requests
+		options.body = body;
+		options.json = true;
+	}
 	
 	try {
 		return await this.helpers.requestWithFullResponse(options);
